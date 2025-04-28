@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Website Berita</title>
+    <link rel="stylesheet" href="stylee.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <a href="dashboard.html">Lihat Daftar Postingan</a>
+    </header>
+
+    <!-- Modal untuk Masukkan Sandi -->
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <h2>Masukkan Sandi</h2>
+            <input type="password" id="admin-password" placeholder="Sandi Admin">
+            <button onclick="checkPassword()">Masuk</button>
+        </div>
+    </div>
+
+    <!-- Form untuk menambahkan postingan berita -->
+    <section id="admin-form" style="display: none;">
+        <h2>Tambah / Edit Berita</h2>
+        <form id="news-form">
+            <input type="text" id="title" placeholder="Judul Berita" required>
+            <textarea id="content" placeholder="Isi Berita" required></textarea>
+            <input type="file" id="image" accept="image/*">
+            <button type="submit">Tambahkan Berita</button>
+        </form>
+        <div id="edit-form" style="display: none;">
+            <h3>Edit Berita</h3>
+            <button onclick="cancelEdit()">Batal Edit</button>
+        </div>
+    </section>
+
+    <script src="scriptt.js"></script>
+</body>
+</html>

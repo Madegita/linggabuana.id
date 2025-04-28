@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Kelola Berita</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Dashboard Admin - Kelola Berita</h1>
+</header>
+
+<!-- Modal untuk Masukkan Sandi -->
+<div id="password-modal" class="modal">
+    <div class="modal-content">
+        <h2>Masukkan Sandi Admin</h2>
+        <input type="password" id="admin-password" placeholder="Sandi Admin">
+        <button onclick="checkPassword()">Masuk</button>
+    </div>
+</div>
+
+<!-- Form Admin -->
+<div id="admin-form" style="display:none;">
+    <button onclick="showCreateModal()">Tambah Postingan</button>
+    <div id="news-dashboard">
+        <!-- Daftar postingan akan muncul di sini -->
+    </div>
+</div>
+
+<!-- Modal untuk Tambah/Edit Postingan -->
+<div id="create-modal" class="modal">
+    <div class="modal-content">
+        <h2>Tambah / Edit Postingan</h2>
+        <input type="text" id="post-title" placeholder="Judul Berita">
+        <textarea id="post-content" placeholder="Isi Berita"></textarea>
+        <input type="file" id="post-image" accept="image/*">
+        <button onclick="savePost()">Simpan</button>
+        <button onclick="closeCreateModal()">Batal</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+    // Modal untuk password admin
+    function showPasswordModal() {
+        document.getElementById('password-modal').style.display = 'flex';
+    }
+
+    function checkPassword() {
+        const password = document.getElementById('admin-password').value;
+        const correctPassword = '7676'; // Password admin yang baru
+
+        if (password === correctPassword) {
+            document.getElementById('password-modal').style.display = 'none';
+            document.getElementById('admin-form').style.display = 'block'; // Menampilkan form admin
+            displayNews(); // Menampilkan berita yang sudah ada
+        } else {
+            alert('Sandi salah!');
+        }
+    }
+
+    // Fungsi untuk menambah atau mengedit postingan
+    function showCreateModal(postIndex = -1) {
+        const modal = document.getElementById('create-modal');
+        modal.style.display = 'flex';
+
+        if (postIndex >= 0) {
+            // Edit postingan
+            const news = JSON.parse(localStorage.getItem('news')) || [];
+            const post = news[postIndex];
+            document.getElementById('post-title').value = post.title;
+            document.getElementById('post-content').value = post.content;
+            document.getElementById('post-image').value = ''; // Reset file input
+            document.getElementById('post-index').value = postIndex; // Menyimpan index postingan
+        } else {
+            // Tambah postingan baru
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-content').value = '';
+            document.getElementById('post-index').value = ''; // Reset index
+        }
+    }
+
+    function closeCreateModal() {
+        document.getElementById('create-modal').style.display = 'none';
+    }
+
+    // Fungsi untuk menyimpan postingan (create / update)
+    function savePost() {
+        const title = document.getElementById('post-title').value;
+        const content = document.getElementById('post-content').value;
+        const image = document.getElementById('post-image').files[0];
+
+        const news = JSON.parse(localStorage.getItem('news')) || [];
+
+        const postIndex = document.getElementById('post-index').value;
+        const newPost = {
+            title: title,
+            content: content,
+            image: image ? URL.createObjectURL(image) : '',
+            date: new Date().toLocaleString(),
+            likes: 0
+        };
+
+        if (postIndex !== '') {
+            // Update postingan
+            news[postIndex] = newPost;
+        } else {
+            // Tambah postingan baru
+            news.push(newPost);
+        }
+
+        localStorage.setItem('news', JSON.stringify(news));
+        displayNews();
+        closeCreateModal();
+    }
+
+    // Fungsi untuk menampilkan berita di halaman admin
+    function displayNews() {
+        const newsList = document.getElementById('news-dashboard');
+        const news = JSON.parse(localStorage.getItem('news')) || [];
+
+        newsList.innerHTML = ''; // Mengosongkan konten sebelumnya
+
+        if (news.length === 0) {
+            newsList.innerHTML = "<p>Belum ada berita yang diposting.</p>";
+        }
+
+        news.forEach((item, index) => {
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.innerHTML = `
+                <div class="news-content">
+                    <h3>${item.title}</h3>
+                    <p>${item.content}</p>
+                    <small>${item.date}</small>
+                    <div class="news-image">
+                        <img src="${item.image}" alt="Image">
+                    </div>
+                    <div>
+                        <button onclick="incrementLikes(${index})">Like (${item.likes})</button>
+                        <button onclick="showCreateModal(${index})">Edit</button>
+                        <button onclick="deletePost(${index})">Hapus</button>
+                    </div>
+                </div>
+            `;
+            newsList.appendChild(newsItem);
+        });
+    }
+
+    // Fungsi untuk menghapus postingan
+    function deletePost(index) {
+        let news = JSON.parse(localStorage.getItem('news'));
+        news.splice(index, 1); // Hapus postingan berdasarkan index
+        localStorage.setItem('news', JSON.stringify(news)); // Simpan perubahan ke localStorage
+        displayNews(); // Refresh tampilan berita
+    }
+
+    // Fungsi untuk menambah like pada postingan
+    function incrementLikes(index) {
+        let news = JSON.parse(localStorage.getItem('news'));
+        news[index].likes += 1; // Increment likes
+        localStorage.setItem('news', JSON.stringify(news)); // Simpan perubahan ke localStorage
+        displayNews(); // Refresh tampilan berita untuk menampilkan jumlah likes yang baru
+    }
+
+    // Panggil fungsi showPasswordModal untuk menampilkan modal sandi saat halaman dimuat
+    window.onload = function() {
+        showPasswordModal(); // Menampilkan modal password saat halaman admin dimuat
+    };
+</script>
+
+</body>
+</html>
